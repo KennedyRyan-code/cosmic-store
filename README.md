@@ -1,16 +1,86 @@
-# React + Vite
+# cosmic-store
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React application built with TypeScript, Vite, and TailwindCSS.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - Latest version of React
+- **TypeScript** - Type-safe JavaScript
+- **Vite 7** - Next-generation frontend tooling
+- **TailwindCSS 4** - Utility-first CSS framework
+- **ESLint** - Code linting
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js 20+ 
+- npm 10+
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Installation
+
+```bash
+# Install dependencies
+npm install
+```
+
+### Development
+
+```bash
+# Start the development server
+npm run dev
+```
+
+The app will be available at [http://localhost:5173](http://localhost:5173)
+
+### Build
+
+```bash
+# Build for production
+npm run build
+```
+
+The built files will be in the `dist` directory.
+
+### Preview Production Build
+
+```bash
+# Preview the production build locally
+npm run preview
+```
+
+### Linting
+
+```bash
+# Run ESLint
+npm run lint
+```
+
+## Project Structure
+
+```
+cosmic-store/
+├── public/          # Static assets
+├── src/
+│   ├── assets/      # Images and other assets
+│   ├── App.tsx      # Main App component
+│   ├── main.tsx     # Application entry point
+│   ├── index.css    # Global styles with Tailwind
+│   └── vite-env.d.ts # Vite type definitions
+├── index.html       # HTML template
+├── tsconfig.json    # TypeScript configuration
+├── vite.config.ts   # Vite configuration
+└── package.json     # Project dependencies
+```
+
+## Features
+
+- ⚡️ Lightning-fast HMR (Hot Module Replacement)
+- 🎨 TailwindCSS for rapid UI development
+- 📘 TypeScript for type safety
+- 🔧 ESLint for code quality
+- 🚀 Optimized production builds
+
+## License
+
+MIT
