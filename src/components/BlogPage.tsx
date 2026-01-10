@@ -3,19 +3,26 @@ import { BlogPost } from '../types';
 
 interface BlogPageProps {
   blogs: BlogPost[];
+  selectedBlogId?: string;
+  onBack?: () => void;
 }
 
-const BlogPage: React.FC<BlogPageProps> = ({ blogs }) => {
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+const BlogPage: React.FC<BlogPageProps> = ({ blogs, selectedBlogId, onBack }) => {
+  const [localSelectedPost, setLocalSelectedPost] = useState<BlogPost | null>(null);
+
+  const selectedPost = selectedBlogId ? (blogs.find(b => b.id === selectedBlogId) || null) : localSelectedPost;
 
   if (selectedPost) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
         <button 
-          onClick={() => setSelectedPost(null)}
+          onClick={() => {
+            if (onBack) onBack();
+            setLocalSelectedPost(null);
+          }}
           className="flex items-center text-[#007bff] font-black text-xs tracking-widest mb-8 group hover:translate-x-[-4px] transition-transform"
         >
-          <span className="mr-2">←</span> BACK TO ARCHIVE
+          <span className="mr-2">←</span> {onBack ? 'BACK TO CATALOG' : 'BACK TO ARCHIVE'}
         </button>
 
         <header className="mb-12">
@@ -84,7 +91,7 @@ const BlogPage: React.FC<BlogPageProps> = ({ blogs }) => {
           <div 
             key={post.id} 
             className="group cursor-pointer bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
-            onClick={() => setSelectedPost(post)}
+            onClick={() => setLocalSelectedPost(post)}
           >
             <div className="relative aspect-[16/10] overflow-hidden">
               <img 
