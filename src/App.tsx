@@ -26,6 +26,7 @@ const BACKEND_URL = 'http://localhost:5000/api';
 type Action = 
   | { type: 'SET_VIEW', payload: ViewState }
   | { type: 'SET_PRODUCT', payload: string }
+  | { type: 'SET_BLOG', payload: string }
   | { type: 'SET_CATEGORY', payload: string }
   | { type: 'SET_SEARCH', payload: string }
   | { type: 'ADD_TO_CART', payload: Product }
@@ -81,6 +82,12 @@ function reducer(state: AppState, action: Action): AppState {
         selectedProductId: action.payload, 
         view: 'product-detail',
         recentlyViewed: [...new Set([action.payload, ...state.recentlyViewed])].slice(0, 5)
+      };
+    case 'SET_BLOG':
+      return {
+        ...state,
+        selectedBlogId: action.payload,
+        view: 'blog-detail'
       };
     case 'SET_CATEGORY':
       return { ...state, selectedCategory: action.payload === 'All Categories' ? undefined : action.payload };
@@ -148,7 +155,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'UPDATE_USER':
       return state.user ? { ...state, user: { ...state.user, ...action.payload } } : state;
     case 'LOGOUT':
-      localStorage.removeItem('cena_user');
+      localStorage.removeItem('cosmic_user');
       return { ...state, user: null, view: 'home' };
     default:
       return state;
@@ -183,8 +190,8 @@ const App: React.FC = () => {
 
     fetchData();
 
-    const savedUser = localStorage.getItem('cena_user');
-    const savedCart = localStorage.getItem('cena_cart');
+    const savedUser = localStorage.getItem('cosmic_user');
+    const savedCart = localStorage.getItem('cosmic_cart');
     if (savedUser) dispatch({ type: 'UPDATE_USER', payload: JSON.parse(savedUser) });
     if (savedCart) dispatch({ type: 'SYNC_CART', payload: JSON.parse(savedCart) });
   }, [state.cart.length === 0 ? 'empty' : 'not-empty']); // Simplified dependency
@@ -193,7 +200,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-500 rounded-full animate-spin"></div>
-        <p className="mt-6 font-black text-[#002e5b] tracking-widest text-sm uppercase animate-pulse italic">CenaStore Core Initializing...</p>
+        <p className="mt-6 font-black text-[#002e5b] tracking-widest text-sm uppercase animate-pulse italic">CosmicStore Core Initializing...</p>
       </div>
     );
   }
@@ -248,7 +255,7 @@ const App: React.FC = () => {
               </div>
             </section>
             <DealOfTheDay products={state.products} dispatch={dispatch} />
-            <BlogsAndTestimonials />
+            <BlogsAndTestimonials dispatch={dispatch} />
           </>
         )}
 
@@ -263,6 +270,7 @@ const App: React.FC = () => {
         {state.view === 'products-list' && <ProductsPage state={state} dispatch={dispatch} />}
         {state.view === 'best-sellers' && <BestSellersPage state={state} dispatch={dispatch} />}
         {state.view === 'blog' && <BlogPage blogs={state.blogs} />}
+        {state.view === 'blog-detail' && <BlogPage blogs={state.blogs} selectedBlogId={state.selectedBlogId} onBack={() => dispatch({ type: 'SET_VIEW', payload: 'blog' })} />}
         {state.view === 'contact' && <ContactPage />}
         {state.view === 'checkout' && <CheckoutPage state={state} dispatch={dispatch} />}
         {state.view === 'cart' && (
