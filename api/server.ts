@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 const SALT_ROUNDS = 10;
 
 app.use(cors() as any);
@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 });
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/cenastore',
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/cosmicstore',
 });
 
 const SEED_CATEGORIES = [
@@ -247,7 +247,7 @@ const initDb = async () => {
          password = EXCLUDED.password,
          role = 'admin',
          name = 'Super Admin'`,
-      ['admin@cenastore.com', 'Super Admin', hashedPassword]
+      ['admin@cosmicstore.com', 'Super Admin', hashedPassword]
     );
     console.log('✅ Admin User Verified/Updated');
 
@@ -545,11 +545,85 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/ai/greet', async (req, res) => {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Generate a short, enthusiastic, one-sentence greeting for an electronics store customer named ${req.body.name}. Mention their status as a premium member. Max 10 words.`,
+      model: 'gemini-1.5-flash',
+      contents: `Generate a short, enthusiastic, one-sentence greeting for a CosmicStore customer named ${req.body.name}. Mention their status as a premium member. Max 10 words.`,
     });
-    res.json({ greeting: response.text });
-  } catch (error) { res.json({ greeting: `Welcome back, ${req.body.name}!` }); }
+    // Docs and types suggest .text() but error says String has no call signatures.
+    // This implies `response.text` (or result.text) is a property that is a String.
+    // Or maybe `response.candidates[0].content.parts[0].text`?
+    // Let's safe guard.
+    // Inspecting the type error "Type 'String' has no call signatures" -> this confirms TS sees `response.text` as a String.
+    // So just `.text`.
+    
+    // However, we need to be careful if `response` is the result object or the response object.
+    // Based on previous error, `response` variable here matches `GenerateContentResponse`.
+    
+    // Let's try to access the text safely.
+    let text = '';
+    if (typeof (response as any).text === 'function') {
+        text = (response as any).text();
+    } else if (typeof (response as any).text === 'string') {
+        text = (response as any).text;
+    } else if ((response as any).response?.text) {
+         // Maybe nested?
+         const nested = (response as any).response;
+         text = typeof nested.text === 'function' ? nested.text() : nested.text;
+    }
+    
+    // If the above is too complex, let's just trust the TS error which says it IS a String non-callable.
+    // So `response.text` should be it.
+    
+    const greetingText = (response as any).text || (response as any).response?.text?.() || '';
+
+    res.json({ greeting: typeof greetingText === 'string' ? greetingText : String(greetingText) });
+  } catch (error) { 
+    console.error('AI Greet Error:', error);
+    res.json({ greeting: `Welcome back, ${req.body.name}!` }); 
+  }
+});
+
+app.post('/api/ai/recommend', async (req, res) => {
+  try {
+    const { viewedProducts, allProducts } = req.body;
+    
+    const viewedNames = viewedProducts.map((p: any) => p.name).join(', ');
+    const allProductsContext = allProducts.map((p: any) => `${p.id}: ${p.name} (${p.category}, ${p.tags?.join(',')})`).join('\n');
+
+    const prompt = `
+      Context: A user has viewed the following products: ${viewedNames}.
+      Available Products:
+      ${allProductsContext}
+      
+      Task: Recommend 3 distinct products from the Available Products list that complement the user's viewing history.
+      Return ONLY a valid JSON array of product IDs. Do not include markdown formatting or explanations.
+      Example: ["1", "5", "8"]
+    `;
+
+    const result = await ai.models.generateContent({
+      model: 'gemini-1.5-flash',
+      contents: prompt,
+    });
+    
+    // Same fix here.
+    const rawText = (result as any).text || (result as any).response?.text?.() || '{}';
+    const text = typeof rawText === 'string' ? rawText.replace(/```json|```/g, '').trim() : String(rawText);
+    
+    const recommendedIds = JSON.parse(text);
+    
+    const recommendations = allProducts.filter((p: any) => recommendedIds.includes(p.id));
+    res.json(recommendations);
+  } catch (error) {
+    console.error('AI Recommend Error:', error);
+    // Fallback: return random products not in viewed list
+    const viewedIds = req.body.viewedProducts.map((p: any) => p.id);
+    const fallback = req.body.allProducts
+      .filter((p: any) => !viewedIds.includes(p.id))
+      .slice(0, 3);
+    res.json(fallback);
+  }
 });
 
 app.listen(PORT, () => { console.log(`🚀 CosmicStore Server running on http://localhost:${PORT}`); });
+
+// Export for Vercel
+module.exports = app;
