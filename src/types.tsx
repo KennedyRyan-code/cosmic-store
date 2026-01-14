@@ -69,7 +69,7 @@ export interface Advertisement {
   saleText?: string;
 }
 
-export type ViewState = 'home' | 'product-detail' | 'cart' | 'admin' | 'category' | 'profile' | 'blog' | 'products-list' | 'best-sellers' | 'contact' | 'checkout';
+export type ViewState = 'home' | 'product-detail' | 'cart' | 'admin' | 'category' | 'profile' | 'blog' | 'blog-detail' | 'products-list' | 'best-sellers' | 'contact' | 'checkout';
 
 export interface AppState {
   view: ViewState;
@@ -78,6 +78,7 @@ export interface AppState {
   categories: Category[];
   advertisements: Advertisement[];
   selectedProductId?: string;
+  selectedBlogId?: string;
   selectedCategory?: string;
   cart: CartItem[];
   user: User | null;
