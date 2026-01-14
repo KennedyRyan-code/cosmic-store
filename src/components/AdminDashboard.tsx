@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Product, BlogPost, Category, Advertisement, AppState } from '../types';
 
-const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = '/api';
 
 interface AdminDashboardProps {
   state: AppState;

@@ -34,7 +34,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode: initialMode, onClos
       const body: any = { email, password };
       if (mode === 'signup') body.name = name;
 
-      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
+      const response = await fetch(`/api${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
