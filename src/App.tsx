@@ -21,7 +21,7 @@ import { getPersonalizedPrice } from './services/pricingService';
 
 
 
-const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = '/api';
 
 type Action = 
   | { type: 'SET_VIEW', payload: ViewState }
