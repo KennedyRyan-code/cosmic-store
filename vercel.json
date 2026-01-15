@@ -1,13 +1,16 @@
 {
     "version": 2,
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "installCommand": "npm install",
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "/api/server.ts"
+            "destination": "/api/server"
         },
         {
             "source": "/(.*)",
-            "destination": "/"
+            "destination": "/index.html"
         }
     ]
 }
